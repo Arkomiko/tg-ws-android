@@ -136,6 +136,8 @@ class _WsPool:
                 self.try_fronting_first = False
                 return ws
             except asyncio.TimeoutError:
+                if self.try_fronting_first:
+                    return None
                 return await self._connect_fronted(target_ip, domain)
             except WsHandshakeError as exc:
                 if exc.is_redirect:
