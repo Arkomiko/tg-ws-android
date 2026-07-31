@@ -218,6 +218,7 @@ class _WsPool:
 
 class _CfWorkerPool:
     WS_POOL_MAX_AGE = 100.0
+    PER_DC_LIMIT = 1
 
     def __init__(self):
         self._idle: Dict[Tuple[int, str], deque] = {}
@@ -258,7 +259,7 @@ class _CfWorkerPool:
         dc, worker_domain = key
         try:
             bucket = self._idle.setdefault(key, deque())
-            needed = proxy_config.pool_size - len(bucket)
+            needed = min(proxy_config.pool_size - len(bucket), self.PER_DC_LIMIT)
             if needed <= 0:
                 return
             tasks = [asyncio.create_task(
