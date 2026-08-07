@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import faulthandler
+import queue
 import subprocess
 import sys
 import threading
@@ -118,6 +119,7 @@ _ns_app: Optional[Any] = None
 _config: dict = {}
 _exiting = False
 _crash_log: Optional[Any] = None
+_ui_queue: queue.Queue = queue.Queue()
 
 
 def _activate_app() -> None:
@@ -151,13 +153,32 @@ def _dispatch(callback: Callable[[], None], delay_ms: int = 0) -> None:
             except Exception as dialog_exc:
                 log.error("Failed to show UI error: %s", repr(dialog_exc))
 
-    try:
-        if delay_ms > 0:
-            _ctk_root.after(delay_ms, invoke)
+    _ui_queue.put((time.monotonic() + delay_ms / 1000.0, invoke))
+
+
+def _pump_ui_queue() -> None:
+    root = _ctk_root
+    if root is None:
+        return
+
+    now = time.monotonic()
+    deferred = []
+    for _ in range(32):
+        try:
+            due_at, callback = _ui_queue.get_nowait()
+        except queue.Empty:
+            break
+        if due_at <= now:
+            callback()
         else:
-            _ctk_root.after_idle(invoke)
-    except Exception as exc:
-        log.warning("Failed to dispatch UI callback: %s", repr(exc))
+            deferred.append((due_at, callback))
+    for item in deferred:
+        _ui_queue.put(item)
+
+    try:
+        root.after(20, _pump_ui_queue)
+    except Exception:
+        pass
 
 
 def _messagebox(kind: str, text: str, title: str) -> Any:
@@ -510,6 +531,7 @@ def _initialize_gui() -> bool:
     except Exception as exc:
         log.warning("Failed to make CTk root transparent: %s", repr(exc))
     _ctk_root.withdraw()
+    _ctk_root.after(20, _pump_ui_queue)
     _ns_app = NSApplication.sharedApplication()
     if NSApplicationActivationPolicyAccessory is not None:
         _ns_app.setActivationPolicy_(NSApplicationActivationPolicyAccessory)
