@@ -56,7 +56,7 @@
 - [Fake TLS + upstream в Nginx](./RU/FakeTlsNginx.md)
 - [Файлы конфигурации Tray-приложения](./RU/TrayConfig.md)
 - [Установка из исходников](./RU/BuildFromSource.md)
-- [Руководство для контрибьюторов](./RU/CONTRIBUTING.md)
+- [Руководство для контрибьюторов](./CONTRIBUTING.md)
 
 ## Windows: быстрый вход
 
