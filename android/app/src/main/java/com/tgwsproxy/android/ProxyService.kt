@@ -105,6 +105,7 @@ class ProxyService : Service() {
 
         // Конфиг всегда берём из хранилища: при рестарте по START_STICKY intent
         // приходит пустым, и раньше это приводило к генерации нового секрета.
+        ProxyConfigStore.migrateLogIfNeeded(this)
         val cfg = ProxyConfigStore.load(this)
         workerHandler?.post { startProxy(cfg) }
         return START_STICKY

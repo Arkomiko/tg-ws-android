@@ -112,7 +112,7 @@ object ProxyConfigStore {
             cfWorkerEnabled = p.getBoolean(KEY_CF_WORKER_ENABLED, false),
             cfWorkerDomains = splitList(p.getString(KEY_CF_WORKER, null)),
             forceTestDc = p.getBoolean(KEY_FORCE_TEST_DC, false),
-            logPath = java.io.File(context.filesDir, "proxy.log").absolutePath,
+            logPath = logFile(context).absolutePath,
         )
     }
 
@@ -230,6 +230,41 @@ object ProxyConfigStore {
     fun setShouldRun(context: Context, value: Boolean) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .edit().putBoolean(KEY_SHOULD_RUN, value).apply()
+    }
+
+    /**
+     * Файл лога.
+     *
+     * Пишем во внешний каталог приложения (`Android/data/<пакет>/files`), а не
+     * в приватный `filesDir`. Причина практическая: релизная сборка не
+     * отладочная, `adb run-as` к ней не применим, и достать лог из приватного
+     * каталога нечем — а именно он нужен, когда пользователь говорит
+     * «сегодня сбоило». Внешний каталог читается обычным `adb pull` и виден
+     * в файловом менеджере, при этом всё так же удаляется вместе с
+     * приложением и не требует разрешений.
+     *
+     * Если внешнего хранилища нет (не смонтировано), откатываемся на приватный.
+     */
+    fun logFile(context: Context): java.io.File {
+        val ext = runCatching { context.getExternalFilesDir(null) }.getOrNull()
+        return if (ext != null) java.io.File(ext, "proxy.log")
+        else java.io.File(context.filesDir, "proxy.log")
+    }
+
+    /**
+     * Переносит лог из приватного каталога во внешний — один раз, после
+     * обновления. Иначе история до обновления осталась бы недоступной.
+     */
+    fun migrateLogIfNeeded(context: Context) {
+        val old = java.io.File(context.filesDir, "proxy.log")
+        val new = logFile(context)
+        if (old.absolutePath == new.absolutePath) return
+        if (!old.isFile || old.length() == 0L) return
+        runCatching {
+            val carried = java.io.File(new.parentFile, "proxy-previous.log")
+            if (!carried.exists()) old.copyTo(carried, overwrite = false)
+            old.delete()
+        }
     }
 
     // helpers

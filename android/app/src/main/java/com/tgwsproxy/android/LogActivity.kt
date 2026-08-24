@@ -73,7 +73,7 @@ class LogActivity : ThemedActivity() {
         load()
     }
 
-    private fun logFile() = File(filesDir, "proxy.log")
+    private fun logFile() = ProxyConfigStore.logFile(this)
 
     private fun load() {
         val f = logFile()

@@ -49,6 +49,18 @@ STUCK_HARD_S = 120.0          # не помогло → полный перез�
 # уже окно, в котором это возможно.
 POOL_MAX_AGE_MOBILE = 100.0
 
+# Сколько ждать освобождения порта при перезапуске и сколько раз пробовать.
+# Наблюдалось: старый event loop не успевал закрыть слушающий сокет, новый
+# получал [Errno 98] и прокси умирал насовсем.
+BIND_RETRIES = 6
+BIND_RETRY_DELAY = 2.0
+_EADDRINUSE = (98, 48, 10048)  # Linux, BSD/macOS, Windows
+
+# Сколько ждать завершения потока прокси при остановке. Прежние 6 секунд
+# иногда не хватало, а ссылка на поток обнулялась всё равно — после чего
+# следующий запуск натыкался на занятый порт.
+STOP_JOIN_TIMEOUT = 15.0
+
 # --- состояние ---------------------------------------------------------------
 
 _thread = None
@@ -295,6 +307,14 @@ def _hard_restart(reason: str) -> None:
 
 # --- жизненный цикл ----------------------------------------------------------
 
+def _port_of_config() -> int:
+    try:
+        from proxy.config import proxy_config
+        return int(proxy_config.port)
+    except Exception:
+        return 0
+
+
 def _thread_main() -> None:
     global _loop, _stop_event, _state, _last_error, _started_at
 
@@ -309,10 +329,36 @@ def _thread_main() -> None:
     try:
         _state = "running"
         _started_at = time.time()
-        loop.run_until_complete(_run(stop_event=stop_ev))
+
+        # Порт может быть ещё занят предыдущим экземпляром: при перезапуске
+        # старый event loop иногда не успевает закрыть слушающий сокет.
+        # В логе это выглядело как «Прокси упал: [Errno 98] address already
+        # in use» — прокси умирал совсем, хотя достаточно было подождать
+        # пару секунд. Поэтому на «адрес занят» делаем несколько попыток.
+        attempt = 0
+        while True:
+            try:
+                loop.run_until_complete(_run(stop_event=stop_ev))
+                break
+            except OSError as exc:
+                if (exc.errno not in _EADDRINUSE
+                        or attempt >= BIND_RETRIES
+                        or stop_ev.is_set()):
+                    raise
+                attempt += 1
+                _log.warning("Порт занят, попытка %d из %d через %.0f с",
+                             attempt, BIND_RETRIES, BIND_RETRY_DELAY)
+                time.sleep(BIND_RETRY_DELAY)
     except Exception as exc:  # noqa: BLE001
         _state = "error"
-        _last_error = "%s: %s" % (type(exc).__name__, exc)
+        # Сырой текст OSError пользователю ничего не говорит; для двух самых
+        # частых причин даём внятную формулировку.
+        if isinstance(exc, OSError) and exc.errno in _EADDRINUSE:
+            _last_error = "Порт %d занят другим приложением" % _port_of_config()
+        elif isinstance(exc, OSError) and exc.errno in (13, 1):
+            _last_error = "Нет прав на порт %d" % _port_of_config()
+        else:
+            _last_error = "%s: %s" % (type(exc).__name__, exc)
         _log.error("Прокси упал: %s", _last_error, exc_info=True)
     else:
         _state = "stopped"
@@ -339,7 +385,14 @@ def start(config_json: str) -> str:
     global _thread, _state, _last_error, _config_json, _log_path, _watchdog
 
     if _thread is not None and _thread.is_alive():
-        return status_json()
+        # Предыдущий экземпляр ещё догорает после stop(). Даём ему время
+        # закрыть слушающий сокет — иначе новый получит «адрес занят».
+        if _state in ("stopping", "stopped"):
+            _log.info("Ждём завершения предыдущего экземпляра")
+            _thread.join(timeout=STOP_JOIN_TIMEOUT)
+        if _thread.is_alive():
+            return status_json()
+        _thread = None
 
     try:
         cfg = json.loads(config_json) if config_json else {}
@@ -396,9 +449,16 @@ def stop() -> str:
 
     th = _thread
     if th is not None:
-        th.join(timeout=6.0)
+        th.join(timeout=STOP_JOIN_TIMEOUT)
         if th.is_alive():
-            _log.warning("Поток прокси не завершился за 6 с")
+            # Ссылку НЕ обнуляем: раньше обнуляли всегда, и следующий start()
+            # считал, что предыдущего экземпляра нет, поднимал новый — а порт
+            # всё ещё держал старый. В логе это давало [Errno 98].
+            _log.warning("Поток прокси не завершился за %.0f с, ссылку сохраняем",
+                         STOP_JOIN_TIMEOUT)
+            if _state != "error":
+                _state = "stopping"
+            return status_json()
     _thread = None
     if _state != "error":
         _state = "stopped"
