@@ -4,7 +4,7 @@
 
 **Android-порт [tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy) от [Flowseal](https://github.com/Flowseal)**
 
-[![Скачать APK](https://img.shields.io/badge/Скачать-APK-3390ec?style=for-the-badge)](https://github.com/Arkomiko/tg-ws-proxy-android/releases/latest)
+[![Скачать APK](https://img.shields.io/badge/Скачать-APK-3390ec?style=for-the-badge)](https://github.com/Arkomiko/tg-ws-proxy-android/releases)
 [![Оригинал](https://img.shields.io/badge/Оригинал-Flowseal%2Ftg--ws--proxy-808080?style=for-the-badge)](https://github.com/Flowseal/tg-ws-proxy)
 
 </div>
@@ -34,7 +34,7 @@ Telegram → MTProto-прокси на 127.0.0.1:1443 → WebSocket поверх
 
 ## Установка
 
-1. Скачайте APK со [страницы релизов](https://github.com/Arkomiko/tg-ws-proxy-android/releases/latest).
+1. Скачайте APK со [страницы релизов](https://github.com/Arkomiko/tg-ws-proxy-android/releases).
 2. Установите. Android спросит разрешение на установку из этого источника — приложение не в Google Play, это нормально.
 3. Откройте, нажмите **«Начать»**, затем **«Открыть в Telegram»**.
 
