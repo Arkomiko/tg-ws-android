@@ -1,5 +1,5 @@
-"""Вспомогательные утилиты (проверка релизов и т.п.)."""
+"""Вспомогательный слой, общий с оригиналом.
 
-from utils.update_check import RELEASES_PAGE_URL, get_status, run_check
-
-__all__ = ["RELEASES_PAGE_URL", "get_status", "run_check"]
+На Android из этого пакета используется только logging_setup: остальные
+модули оригинала обслуживали десктопный трей и в APK не попадают.
+"""

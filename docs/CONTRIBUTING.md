@@ -4,7 +4,7 @@
 
 ## Перед созданием issue
 
-1. Проверьте документацию в `docs/README.md`.
+1. Проверьте документацию в `README.md` и `docs/RU/README.android.md`.
 2. Убедитесь, что похожий issue еще не открыт.
 3. Для корректной работы triage используйте стандартные лейблы из `.github/labels.md`.
 
@@ -35,7 +35,7 @@ pip install -e .
 - macOS tray: `tg-ws-proxy-tray-macos`
 - Linux tray: `tg-ws-proxy-tray-linux`
 
-Подробности: `docs/BuildFromSource.md`.
+Подробности: `docs/RU/BuildFromSource.md`.
 
 ## Проверки
 

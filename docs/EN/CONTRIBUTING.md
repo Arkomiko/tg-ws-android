@@ -4,7 +4,7 @@ Thank you for wanting to help the `tg-ws-proxy` project.
 
 ## Before Creating an Issue
 
-1. Check the documentation in `docs/README.md`.
+1. Check the documentation in `README.md` and `docs/EN/README.android.md`.
 2. Make sure a similar issue hasn't already been opened.
 3. Use standard labels from `.github/labels.md` for correct triage.
 
@@ -35,7 +35,7 @@ Running:
 - macOS tray: `tg-ws-proxy-tray-macos`
 - Linux tray: `tg-ws-proxy-tray-linux`
 
-Details: `docs/BuildFromSource.md`.
+Details: `docs/EN/BuildFromSource.md`.
 
 ## Checks
 

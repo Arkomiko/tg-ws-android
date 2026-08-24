@@ -22,12 +22,11 @@ val syncPythonCore = tasks.register<Sync>("syncPythonCore") {
     }
     // utils/logging_setup.py даёт ротацию лога с уже выверенным инвариантом
     // (backupCount >= 1, иначе RotatingFileHandler молча не ротирует).
-    // Переписывать это на Kotlin незачем. Десктопных зависимостей здесь нет:
-    // utils/__init__.py тянет только update_check, а тот — urllib и proxy.utils.
+    // Переписывать это на Kotlin незачем. Десктопные модули из utils/ удалены
+    // из репозитория вместе с треем, поэтому исключать здесь больше нечего.
     from(repoRoot.resolve("utils")) {
         into("utils")
         include("**/*.py")
-        exclude("win32_theme.py", "tray_common.py", "default_config.py")
     }
     into(pythonCoreDir)
 }
