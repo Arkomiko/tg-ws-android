@@ -32,7 +32,7 @@ This works because Android apps share one network namespace: one app's `127.0.0.
 
 ## Installation
 
-Download the APK from the [releases page](https://github.com/Arkomiko/tg-ws-proxy/releases/latest) and install it. Android will warn about installing from an unknown source — the app is not published on Google Play.
+Download the APK from the [releases page](https://github.com/Arkomiko/tg-ws-proxy-android/releases/latest) and install it. Android will warn about installing from an unknown source — the app is not published on Google Play.
 
 ## Connecting Telegram
 

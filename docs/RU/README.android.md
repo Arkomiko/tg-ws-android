@@ -32,7 +32,7 @@ kwsN.web.telegram.org → дата-центр Telegram
 
 ## Установка
 
-Скачайте APK со [страницы релизов](https://github.com/Arkomiko/tg-ws-proxy/releases/latest) и установите. Android предупредит об установке из неизвестного источника — приложение не публикуется в Google Play.
+Скачайте APK со [страницы релизов](https://github.com/Arkomiko/tg-ws-proxy-android/releases/latest) и установите. Android предупредит об установке из неизвестного источника — приложение не публикуется в Google Play.
 
 ## Подключение Telegram
 
