@@ -114,9 +114,23 @@ class TunnelService : VpnService() {
          *
          * VpnService.prepare возвращает Intent, если согласия ещё нет; его
          * нужно показать из Activity. null означает, что можно поднимать.
+         *
+         * ОСТОРОЖНО: prepare не просто спрашивает. Он делает наше приложение
+         * «подготовленным» к роли VPN, а прежнее подготовленное — нет, и
+         * система немедленно рвёт его туннель. Проверено на устройстве:
+         * у работающего ByeDPI был tun0 с адресом 10.10.10.10; после одного
+         * вызова prepare интерфейс исчез, хотя мы ничего не поднимали и даже
+         * не сохраняли настройку. То есть простая проверка «а есть ли
+         * согласие?» убивает чужой обходчик DPI.
+         *
+         * Поэтому при активном чужом VPN сюда вообще не ходим и честно
+         * отвечаем, что согласия нет: спросим позже, когда чужой туннель
+         * опустится, и никому этим не помешаем.
          */
-        fun consentGranted(context: Context): Boolean =
-            runCatching { VpnService.prepare(context) == null }.getOrDefault(false)
+        fun consentGranted(context: Context): Boolean {
+            if (foreignVpnActive(context)) return false
+            return runCatching { VpnService.prepare(context) == null }.getOrDefault(false)
+        }
 
         /** В каком режиме живучести мы находимся — для показа в интерфейсе. */
         enum class Mode {

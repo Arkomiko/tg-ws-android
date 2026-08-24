@@ -35,6 +35,9 @@ class MainActivity : ThemedActivity() {
     private companion object {
         /** Сколько отказов рукопожатия считать поводом показать подсказку. */
         const val BAD_HANDSHAKE_HINT_THRESHOLD = 5
+
+        /** Код запроса системного согласия на туннель. */
+        const val REQ_TUNNEL_CONSENT = 1001
     }
 
     private lateinit var titleView: TextView
@@ -89,6 +92,39 @@ class MainActivity : ThemedActivity() {
     override fun onResume() {
         super.onResume()
         startPolling()
+        maybeAskTunnelConsent()
+    }
+
+    /**
+     * Спрашивает согласие на туннель, если оно нужно и сейчас безопасно.
+     *
+     * Согласие нельзя запрашивать при работающем чужом VPN: VpnService.prepare
+     * отбирает роль VPN у активного приложения и рвёт его туннель — проверено
+     * на устройстве, ByeDPI падал от одного вызова. Поэтому в настройках при
+     * чужом VPN галочку принимаем молча, а спрашиваем здесь — при возвращении
+     * на главный экран, когда чужого туннеля уже нет.
+     */
+    private fun maybeAskTunnelConsent() {
+        if (!ProxyConfigStore.tunnelEnabled(this)) return
+        if (TunnelService.isActive) return
+        if (TunnelService.foreignVpnActive(this)) return
+        if (TunnelService.consentGranted(this)) return
+
+        val intent = runCatching { android.net.VpnService.prepare(this) }.getOrNull() ?: return
+        runCatching { startActivityForResult(intent, REQ_TUNNEL_CONSENT) }
+    }
+
+    @Deprecated("onActivityResult")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != REQ_TUNNEL_CONSENT) return
+        if (resultCode != Activity.RESULT_OK) {
+            // Отказ — снимаем настройку, иначе она обещала бы то, чего нет.
+            ProxyConfigStore.setTunnelEnabled(this, false)
+            Toast.makeText(this, R.string.tunnel_consent_denied, Toast.LENGTH_LONG).show()
+        }
+        refresh()
     }
 
     override fun onPause() {

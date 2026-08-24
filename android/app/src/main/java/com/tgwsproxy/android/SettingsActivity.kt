@@ -152,7 +152,16 @@ class SettingsActivity : ThemedActivity() {
         // его сразу при включении галочки, а не при первом подъёме туннеля из
         // сервиса — там показать диалог уже негде.
         tunnel.setOnCheckedChangeListener { _, checked ->
-            if (checked) requestTunnelConsent()
+            if (!checked) return@setOnCheckedChangeListener
+            if (TunnelService.foreignVpnActive(this)) {
+                // Спрашивать согласие прямо сейчас нельзя: VpnService.prepare
+                // отбирает роль VPN у активного приложения и рвёт его туннель.
+                // Настройку принимаем, согласие спросим позже — при следующем
+                // открытии главного экрана без чужого VPN.
+                Toast.makeText(this, R.string.tunnel_wait_foreign, Toast.LENGTH_LONG).show()
+                return@setOnCheckedChangeListener
+            }
+            requestTunnelConsent()
         }
         forceTestDc = check(
             root, R.string.lbl_force_test_dc, cfg.forceTestDc, R.string.tip_force_test_dc

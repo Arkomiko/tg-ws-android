@@ -116,6 +116,7 @@
     <string name="tunnel_foreign">Живучесть: работает другой VPN — свой туннель не нужен</string>
     <string name="tunnel_no_consent">Живучесть: туннель включён, но не разрешён в системе</string>
     <string name="tunnel_pending">Живучесть: туннель поднимается…</string>
+    <string name="tunnel_wait_foreign">Сейчас работает другой VPN. Туннель поднимется и разрешение спросится, когда вы его выключите</string>
     <string name="tunnel_consent_denied">Без разрешения системы туннель не поднять</string>
     <string name="sig_based">Based on: tg-ws-proxy (от Flowseal)</string>
     <string name="sig_versions">Ядро: %1$s (Windows)   ·   APK: %2$s</string>
