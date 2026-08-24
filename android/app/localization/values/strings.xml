@@ -77,6 +77,7 @@
     <string name="lbl_log_max_mb">Max log size, MB (default 5)</string>
     <string name="lbl_force_test_dc">Telegram test data centers</string>
     <string name="lbl_autostart">Start after device boot</string>
+    <string name="lbl_tunnel">Keep a tunnel so the proxy is not put to sleep</string>
 
     <string name="tip_host">Address the proxy listens on. Usually 127.0.0.1</string>
     <string name="tip_port">Proxy port. Telegram must use the same one. Ports below 1024 are unavailable on Android</string>
@@ -86,6 +87,7 @@
     <string name="tip_cf_custom">Specify your own domains instead of automatic selection</string>
     <string name="tip_cfworker">Cloudflare Worker domains, e.g. name.account.workers.dev</string>
     <string name="tip_verbose">More details in the log — useful for troubleshooting</string>
+    <string name="tip_tunnel">Raises an empty VPN tunnel: the system suspends an app with an active tunnel far less eagerly. No traffic goes through it and nothing is altered. If another VPN is running — ByeDPI, Happ — the tunnel is not raised, so that it is not displaced</string>
     <string name="tip_force_test_dc">Route all traffic to Telegram test environment. Not needed for normal use</string>
 
     <string name="theme_auto">Auto</string>
@@ -109,6 +111,11 @@
     <string name="donate">Donate</string>
     <string name="warn_bad_secret">Telegram is connecting with a different secret. Tap “Open in Telegram” to update the proxy</string>
     <!-- Signature at the bottom of the main screen. Names are not translated. -->
+    <string name="tunnel_own">Resilience: own tunnel is up</string>
+    <string name="tunnel_foreign">Resilience: another VPN is running — own tunnel not needed</string>
+    <string name="tunnel_no_consent">Resilience: tunnel enabled but not allowed by the system</string>
+    <string name="tunnel_pending">Resilience: raising the tunnel…</string>
+    <string name="tunnel_consent_denied">The tunnel cannot be raised without system permission</string>
     <string name="sig_based">Based on: tg-ws-proxy (by Flowseal)</string>
     <string name="sig_versions">Core: %1$s (Windows)   ·   APK: %2$s</string>
     <string name="sig_adapted">Adapted for android by Arkomiko</string>

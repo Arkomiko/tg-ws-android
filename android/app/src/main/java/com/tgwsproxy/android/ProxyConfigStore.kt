@@ -80,6 +80,7 @@ object ProxyConfigStore {
     private const val KEY_LANGUAGE = "language"
     private const val KEY_THEME = "theme"
     private const val KEY_AUTOSTART = "autostart"
+    private const val KEY_TUNNEL = "tunnel_enabled"
     private const val KEY_SHOULD_RUN = "should_run"
 
     // Значения по умолчанию — те же, что в utils/default_config.py.
@@ -215,6 +216,22 @@ object ProxyConfigStore {
     fun setAutostart(context: Context, value: Boolean) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .edit().putBoolean(KEY_AUTOSTART, value).apply()
+    }
+
+    /**
+     * Разрешил ли пользователь поднимать собственный туннель ради живучести.
+     *
+     * По умолчанию выключено намеренно: включение показывает системный запрос,
+     * вешает постоянный значок VPN в статусной строке и вытесняет любой другой
+     * активный VPN. Такое не делают без ведома пользователя.
+     */
+    fun tunnelEnabled(context: Context): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getBoolean(KEY_TUNNEL, false)
+
+    fun setTunnelEnabled(context: Context, value: Boolean) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .edit().putBoolean(KEY_TUNNEL, value).apply()
     }
 
     /**

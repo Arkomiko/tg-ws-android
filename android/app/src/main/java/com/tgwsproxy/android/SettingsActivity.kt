@@ -50,6 +50,7 @@ class SettingsActivity : ThemedActivity() {
     private lateinit var cfWorker: EditText
     private lateinit var forceTestDc: CheckBox
     private lateinit var autostart: CheckBox
+    private lateinit var tunnel: CheckBox
     private lateinit var themeSpinner: Spinner
     private lateinit var langSpinner: Spinner
 
@@ -144,6 +145,15 @@ class SettingsActivity : ThemedActivity() {
         // Дополнительно
         section(root, R.string.section_extra)
         autostart = check(root, R.string.lbl_autostart, ProxyConfigStore.autostart(this), null)
+        tunnel = check(
+            root, R.string.lbl_tunnel, ProxyConfigStore.tunnelEnabled(this), R.string.tip_tunnel
+        )
+        // Согласие на VPN система спрашивает только из Activity, поэтому просим
+        // его сразу при включении галочки, а не при первом подъёме туннеля из
+        // сервиса — там показать диалог уже негде.
+        tunnel.setOnCheckedChangeListener { _, checked ->
+            if (checked) requestTunnelConsent()
+        }
         forceTestDc = check(
             root, R.string.lbl_force_test_dc, cfg.forceTestDc, R.string.tip_force_test_dc
         )
@@ -332,6 +342,32 @@ class SettingsActivity : ThemedActivity() {
 
     // сохранение
 
+    /**
+     * Просит системное согласие на туннель. Если согласие уже выдано, диалога
+     * не будет: VpnService.prepare вернёт null.
+     */
+    private fun requestTunnelConsent() {
+        val intent = runCatching { android.net.VpnService.prepare(this) }.getOrNull()
+        if (intent == null) return
+        runCatching { startActivityForResult(intent, REQ_TUNNEL_CONSENT) }
+            .onFailure {
+                Toast.makeText(this, R.string.tunnel_consent_denied, Toast.LENGTH_LONG).show()
+                tunnel.isChecked = false
+            }
+    }
+
+    @Deprecated("onActivityResult")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != REQ_TUNNEL_CONSENT) return
+        if (resultCode != Activity.RESULT_OK) {
+            // Отказ — снимаем галочку, иначе настройка врала бы о состоянии.
+            tunnel.isChecked = false
+            Toast.makeText(this, R.string.tunnel_consent_denied, Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun onSave() {
         val error = ProxyConfigStore.save(
             context = this,
@@ -356,6 +392,7 @@ class SettingsActivity : ThemedActivity() {
         }
 
         ProxyConfigStore.setAutostart(this, autostart.isChecked)
+        ProxyConfigStore.setTunnelEnabled(this, tunnel.isChecked)
 
         val newLang = if (langSpinner.selectedItemPosition == 1) {
             AppLocale.LANG_EN
@@ -394,6 +431,9 @@ class SettingsActivity : ThemedActivity() {
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     companion object {
+        /** Код запроса системного согласия на туннель. */
+        private const val REQ_TUNNEL_CONSENT = 1001
+
         fun open(context: Context) {
             context.startActivity(Intent(context, SettingsActivity::class.java))
         }

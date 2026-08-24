@@ -50,6 +50,13 @@ class ProxyService : Service() {
         /** Как часто продлевать — вдвое чаще срока, чтобы не было разрыва. */
         private const val WAKELOCK_RENEW_MS = 4 * 60 * 1000L
 
+        /**
+         * Пауза между попытками поднять туннель. Проверка живёт в том же
+         * тикере, что и уведомление, то есть срабатывает каждые пять секунд;
+         * без паузы неудачная попытка повторялась бы двенадцать раз в минуту.
+         */
+        private const val TUNNEL_RETRY_MS = 60 * 1000L
+
         @Volatile
         var isRunning: Boolean = false
             private set
@@ -64,6 +71,7 @@ class ProxyService : Service() {
     private var lastNetEvent = 0L
     private var lastVpn = false
     private var lastWakeLockAcquire = 0L
+    private var lastTunnelAttempt = 0L
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -135,6 +143,7 @@ class ProxyService : Service() {
 
             if (isRunning) {
                 Log.i(TAG, "Прокси запущен на ${cfg.host}:${cfg.port}")
+                ui.post { maybeRaiseTunnel() }
                 ui.post {
                     updateNotification(
                         getString(R.string.notif_listening, cfg.host, cfg.port)
@@ -163,6 +172,9 @@ class ProxyService : Service() {
         } finally {
             isRunning = false
             releaseWakeLock()
+            // Туннель существует только ради работающего прокси: VPN-значок
+            // при остановленном прокси вводил бы в заблуждение.
+            ui.post { TunnelService.stop(this) }
         }
     }
 
@@ -251,6 +263,7 @@ class ProxyService : Service() {
             override fun run() {
                 if (!isRunning) return
                 renewWakeLock()
+                maybeRaiseTunnel()
                 val statsRaw = runCatching { PythonBridge.stats(this@ProxyService) }.getOrNull()
                 val stats = statsRaw?.let { runCatching { JSONObject(it) }.getOrNull() }
                 if (stats != null) {
@@ -280,6 +293,46 @@ class ProxyService : Service() {
             v /= 1024
         }
         return "%.1f ТБ".format(v)
+    }
+
+    // туннель живучести
+
+    /**
+     * Поднимает собственный туннель, если это уместно.
+     *
+     * Проверка живёт в тикере, а не в колбэке сети, намеренно. Когда чужой VPN
+     * вытесняет наш, события приходят вплотную: сначала onRevoke, затем падение
+     * нашей сети, только потом подъём чужой. Реакция на «VPN упал» в этот
+     * момент увидела бы, что VPN нет, и подняла бы туннель обратно — вытеснив
+     * только что запущенный чужой обходчик. Пятисекундная проверка застаёт
+     * систему уже в устоявшемся состоянии.
+     */
+    private fun maybeRaiseTunnel() {
+        if (!ProxyConfigStore.tunnelEnabled(this)) {
+            // Пользователь мог выключить настройку при уже поднятом туннеле:
+            // тогда значок VPN остался бы висеть вопреки выключенной галочке.
+            if (TunnelService.isActive) TunnelService.stop(this)
+            return
+        }
+        if (TunnelService.isActive) return
+
+        val now = System.currentTimeMillis()
+        if (now - lastTunnelAttempt < TUNNEL_RETRY_MS) return
+
+        if (TunnelService.foreignVpnActive(this)) {
+            // Не ошибка, а штатный режим: под чужим туннелем процесс защищён
+            // ровно так же, а вытеснять чужой обходчик мы не вправе.
+            return
+        }
+        if (!TunnelService.consentGranted(this)) {
+            // Согласие спрашивается из экрана настроек: системный диалог
+            // показывается только из Activity, из сервиса его не вызвать.
+            Log.i(TAG, "Туннель включён, но согласия нет — пропускаем")
+            lastTunnelAttempt = now
+            return
+        }
+        lastTunnelAttempt = now
+        TunnelService.start(this)
     }
 
     // wake lock

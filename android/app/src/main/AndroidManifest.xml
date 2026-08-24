@@ -56,6 +56,21 @@
                 android:value="Локальный MTProto-прокси: держит слушающий сокет и WebSocket-соединения к дата-центрам Telegram, пока пользователь явно не остановит его." />
         </service>
 
+        <!--
+            Пустой туннель ради живучести процесса. Трафик не перехватывает:
+            маршрут один и ведёт на незанятый адрес собственной подсети.
+            Поднимается только с согласия пользователя и только когда в
+            системе нет другого активного VPN.
+        -->
+        <service
+            android:name=".TunnelService"
+            android:exported="false"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
+
         <activity
             android:name=".SettingsActivity"
             android:exported="false"

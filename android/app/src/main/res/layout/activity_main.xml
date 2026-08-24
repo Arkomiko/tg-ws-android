@@ -71,6 +71,16 @@
                 android:textColor="@color/text_secondary"
                 android:layout_marginTop="2dp"
                 android:visibility="gone" />
+
+            <!-- Режим живучести: свой туннель, чужой VPN или ничего. -->
+            <TextView
+                android:id="@+id/tunnel_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginTop="2dp"
+                android:visibility="gone" />
         </LinearLayout>
 
         <!-- как подключить -->

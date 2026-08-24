@@ -40,6 +40,7 @@ class MainActivity : ThemedActivity() {
     private lateinit var titleView: TextView
     private lateinit var statsLine: TextView
     private lateinit var statsTraffic: TextView
+    private lateinit var tunnelLine: TextView
     private lateinit var linkView: TextView
     private lateinit var mtprotoView: TextView
     private lateinit var secretView: TextView
@@ -58,6 +59,7 @@ class MainActivity : ThemedActivity() {
         titleView = findViewById(R.id.title)
         statsLine = findViewById(R.id.stats_line)
         statsTraffic = findViewById(R.id.stats_traffic)
+        tunnelLine = findViewById(R.id.tunnel_line)
         linkView = findViewById(R.id.link)
         mtprotoView = findViewById(R.id.manual_mtproto)
         secretView = findViewById(R.id.manual_secret)
@@ -242,6 +244,32 @@ class MainActivity : ThemedActivity() {
         poll = null
     }
 
+    /**
+     * Строка о режиме живучести. Показывается только при работающем прокси:
+     * туннель существует ради него и без него не поднимается.
+     *
+     * Режим «работает другой VPN» — не отказ, а штатное поведение: под чужим
+     * туннелем процесс защищён так же, поэтому свой намеренно не поднимаем.
+     */
+    private fun showTunnelMode(running: Boolean) {
+        if (!running || !ProxyConfigStore.tunnelEnabled(this)) {
+            tunnelLine.visibility = View.GONE
+            return
+        }
+        val res = when (TunnelService.mode(this)) {
+            TunnelService.Companion.Mode.OWN -> R.string.tunnel_own
+            TunnelService.Companion.Mode.FOREIGN -> R.string.tunnel_foreign
+            TunnelService.Companion.Mode.NO_CONSENT -> R.string.tunnel_no_consent
+            TunnelService.Companion.Mode.PENDING -> R.string.tunnel_pending
+            TunnelService.Companion.Mode.DISABLED -> {
+                tunnelLine.visibility = View.GONE
+                return
+            }
+        }
+        tunnelLine.setText(res)
+        tunnelLine.visibility = View.VISIBLE
+    }
+
     private fun refresh() {
         Thread {
             val statusRaw = runCatching { PythonBridge.status(this) }.getOrNull()
@@ -272,6 +300,8 @@ class MainActivity : ThemedActivity() {
             statsTraffic.visibility = View.GONE
             return
         }
+
+        showTunnelMode(running)
 
         val stats = statsRaw?.let { runCatching { JSONObject(it) }.getOrNull() }
         if (!running || stats == null) {
