@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Формулировки взяты из ui/i18n/ru.json десктопной версии, чтобы приложения
+    говорили одним языком. Отличаются только те строки, где путь настройки
+    в Telegram для Android другой, чем в Telegram Desktop.
+-->
+<resources>
+    <string name="app_name">TG WS Proxy</string>
+
+    <string name="title_running">Прокси запущен и работает</string>
+    <string name="title_stopped">Прокси остановлен</string>
+    <string name="title_starting">Запускается…</string>
+    <string name="title_error">Прокси не запустился</string>
+
+    <string name="how_to">Как подключить Telegram:</string>
+    <string name="auto">Автоматически:</string>
+    <string name="auto_hint">Нажмите «Открыть в Telegram» — он предложит включить прокси.</string>
+    <string name="auto_link">Или скопируйте ссылку и откройте её на этом устройстве:</string>
+    <string name="manual">Вручную:</string>
+    <string name="manual_path">Настройки → Данные и память → Настройки прокси → Добавить прокси</string>
+    <string name="manual_mtproto">MTProto → %1$s : %2$d</string>
+    <string name="manual_secret">Secret: dd%1$s</string>
+
+    <string name="btn_start">Начать</string>
+    <string name="btn_stop">Остановить</string>
+    <string name="btn_open_telegram">Открыть в Telegram</string>
+    <string name="btn_copy">Скопировать ссылку</string>
+
+    <string name="stats_idle">Соединений пока нет</string>
+    <string name="stats_line">%1$d с · соединений %2$d (активных %3$d, ws %4$d)</string>
+    <string name="stats_traffic"> ↑ %1$s · ↓ %2$s </string>
+
+    <string name="copied">Ссылка скопирована</string>
+    <string name="telegram_missing">Telegram не открылся — скопируйте ссылку</string>
+
+    <string name="notif_channel_name">Состояние прокси</string>
+    <string name="notif_title">TG WS Proxy работает</string>
+    <string name="notif_starting">Запускается…</string>
+    <string name="notif_listening">Слушает %1$s:%2$d</string>
+    <string name="notif_stop">Остановить</string>
+
+    <string name="battery_title">Ограничения фона</string>
+    <string name="battery_text">Это устройство может выгружать прокси из памяти в фоне. Разрешить работу без ограничений батареи?</string>
+    <string name="battery_open">Открыть настройки</string>
+    <string name="battery_later">Позже</string>
+
+    <string name="diag_title">Диагностика</string>
+    <string name="tile_on">Включён</string>
+    <string name="tile_off">Выключен</string>
+    <string name="settings_title">Настройки</string>
+    <string name="btn_settings">Настройки</string>
+    <string name="btn_restart">Перезапустить прокси</string>
+    <string name="btn_logs">Открыть логи</string>
+    <string name="btn_save">Сохранить</string>
+    <string name="btn_cancel">Отмена</string>
+    <string name="btn_regen">Новый</string>
+
+    <string name="section_interface">Интерфейс</string>
+    <string name="section_mtproto">Подключение MTProto</string>
+    <string name="section_dc">Датацентры Telegram</string>
+    <string name="section_cfproxy">Cloudflare Proxy</string>
+    <string name="section_cfworker">Cloudflare Worker</string>
+    <string name="section_logs">Логи и производительность</string>
+    <string name="section_extra">Дополнительно</string>
+
+    <string name="lbl_language">Язык</string>
+    <string name="lbl_theme">Тема</string>
+    <string name="lbl_host">IP-адрес</string>
+    <string name="lbl_port">Порт</string>
+    <string name="lbl_secret">Secret</string>
+    <string name="lbl_dc_hint">По одному правилу на строку, формат: номер:IP</string>
+    <string name="lbl_cf_enable">Включить CF-прокси</string>
+    <string name="lbl_cf_custom">Свой домен</string>
+    <string name="lbl_cfworker_domains">Домены Cloudflare Worker (через запятую)</string>
+    <string name="lbl_verbose">Подробное логирование (verbose)</string>
+    <string name="lbl_buf_kb">Буфер, КБ (по умолчанию 256)</string>
+    <string name="lbl_pool_size">Пул WebSocket-сессий (по умолчанию 4)</string>
+    <string name="lbl_log_max_mb">Макс. размер лога, МБ (по умолчанию 5)</string>
+    <string name="lbl_force_test_dc">Тестовые датацентры Telegram</string>
+    <string name="lbl_autostart">Запускать после включения телефона</string>
+
+    <string name="tip_host">Адрес, на котором прокси принимает подключения. Обычно 127.0.0.1</string>
+    <string name="tip_port">Порт прокси. В Telegram должен быть указан тот же. Ниже 1024 на Android недоступны</string>
+    <string name="tip_secret">Секретный ключ для авторизации клиентов</string>
+    <string name="tip_dc">Соответствие номера датацентра и IP. Если не грузятся медиа — попробуйте убрать строку 2:149.154.167.220</string>
+    <string name="tip_cfproxy">Использовать Cloudflare-прокси для недоступных датацентров</string>
+    <string name="tip_cf_custom">Указать свои домены вместо автоматического выбора</string>
+    <string name="tip_cfworker">Домены Cloudflare Worker, например name.account.workers.dev</string>
+    <string name="tip_verbose">Больше подробностей в логе — нужно при поиске неполадок</string>
+    <string name="tip_force_test_dc">Направлять весь трафик в тестовое окружение Telegram. Обычным пользователям не нужно</string>
+
+    <string name="theme_auto">Авто</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+
+    <string name="err_port">Порт должен быть числом от 1 до 65535</string>
+    <string name="err_port_privileged">Порты ниже 1024 на Android недоступны без root</string>
+    <string name="err_secret">Secret должен быть 32 шестнадцатеричными символами</string>
+    <string name="err_dc">Неверная строка DC: %1$s</string>
+    <string name="err_number">Числовые поля заполнены неверно</string>
+    <string name="saved">Настройки сохранены, прокси перезапущен</string>
+
+    <string name="log_title">Логи</string>
+    <string name="log_empty">Лог пуст</string>
+    <string name="log_copy">Скопировать</string>
+    <string name="log_clear">Очистить</string>
+    <string name="log_copied">Лог скопирован</string>
+
+    <string name="restarting">Перезапуск…</string>
+    <string name="donate">Поддержать</string>
+    <string name="warn_bad_secret">Telegram подключается с другим секретом. Нажмите «Открыть в Telegram», чтобы обновить прокси</string>
+    <!-- Подпись внизу главного экрана. Имена не переводятся. -->
+    <string name="sig_based">Based on: tg-ws-proxy (от Flowseal)</string>
+    <string name="sig_versions">Versions: %1$s (Windows)</string>
+    <string name="sig_adapted">Adapted for android by Arkomiko</string>
+</resources>

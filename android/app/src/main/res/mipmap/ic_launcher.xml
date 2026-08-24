@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Запасная иконка для Android 7.x, где нет adaptive-icon: круг + «T». -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#0088cc"
+        android:pathData="M54,2 a52,52 0 1,0 0.1,0 z" />
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M34,32 h40 v10 h-15 v34 h-10 v-34 h-15 z" />
+</vector>

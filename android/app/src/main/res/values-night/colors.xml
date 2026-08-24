@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Тёмная тема — вторые значения кортежей из ui/ctk_theme.py. -->
+<resources>
+    <color name="tg_blue">#3390ec</color>
+    <color name="tg_blue_hover">#2b7cd4</color>
+    <color name="tg_blue_disabled">#2a5c8a</color>
+
+    <color name="bg">#1e1e1e</color>
+    <color name="field_bg">#2b2b2b</color>
+    <color name="field_border">#3a3a3a</color>
+
+    <color name="text_primary">#ffffff</color>
+    <color name="text_secondary">#aaaaaa</color>
+    <color name="text_on_blue">#ffffff</color>
+
+    <color name="state_ok">#4cd964</color>
+    <color name="state_error">#ff6b6b</color>
+
+    <color name="icon_bg">#0088cc</color>
+    <!-- Подпись внизу главного экрана. -->
+    <color name="signature">#6f7478</color>
+    <color name="signature_dim">#5c6165</color>
+    <color name="signature_link">#a8617d</color>
+</resources>

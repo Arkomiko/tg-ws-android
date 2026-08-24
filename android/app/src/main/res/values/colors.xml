@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Палитра один в один с десктопной версией: ui/ctk_theme.py, класс CtkTheme.
+    Здесь светлая тема; тёмная — в values-night/colors.xml.
+-->
+<resources>
+    <color name="tg_blue">#3390ec</color>
+    <color name="tg_blue_hover">#2b7cd4</color>
+    <color name="tg_blue_disabled">#8fbdf0</color>
+
+    <color name="bg">#ffffff</color>
+    <color name="field_bg">#f0f2f5</color>
+    <color name="field_border">#d6d9dc</color>
+
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#707579</color>
+    <color name="text_on_blue">#ffffff</color>
+
+    <color name="state_ok">#31a24c</color>
+    <color name="state_error">#e0393e</color>
+
+    <color name="icon_bg">#0088cc</color>
+    <!-- Подпись внизу главного экрана. -->
+    <color name="signature">#8b9096</color>
+    <color name="signature_dim">#a2a7ad</color>
+    <color name="signature_link">#b06585</color>
+</resources>

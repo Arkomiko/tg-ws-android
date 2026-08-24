@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Значения по умолчанию — английские, как в ui/i18n/en.json.
+    Русские — в values-ru/strings.xml.
+-->
+<resources>
+    <string name="app_name">TG WS Proxy</string>
+
+    <string name="title_running">Proxy is running</string>
+    <string name="title_stopped">Proxy is stopped</string>
+    <string name="title_starting">Starting…</string>
+    <string name="title_error">Proxy failed to start</string>
+
+    <string name="how_to">How to connect Telegram:</string>
+    <string name="auto">Automatically:</string>
+    <string name="auto_hint">Tap “Open in Telegram” — the app will offer to enable the proxy.</string>
+    <string name="auto_link">Or copy the link and open it on this device:</string>
+    <string name="manual">Manually:</string>
+    <string name="manual_path">Settings → Data and Storage → Proxy Settings → Add Proxy</string>
+    <string name="manual_mtproto">MTProto → %1$s : %2$d</string>
+    <string name="manual_secret">Secret: dd%1$s</string>
+
+    <string name="btn_start">Start</string>
+    <string name="btn_stop">Stop</string>
+    <string name="btn_open_telegram">Open in Telegram</string>
+    <string name="btn_copy">Copy link</string>
+
+    <string name="stats_idle">No connections yet</string>
+    <string name="stats_line">%1$d s · connections %2$d (active %3$d, ws %4$d)</string>
+    <string name="stats_traffic">↑ %1$s · ↓ %2$s</string>
+
+    <string name="copied">Link copied</string>
+    <string name="telegram_missing">Telegram did not open — copy the link instead</string>
+
+    <string name="notif_channel_name">Proxy status</string>
+    <string name="notif_title">TG WS Proxy is running</string>
+    <string name="notif_starting">Starting…</string>
+    <string name="notif_listening">Listening on %1$s:%2$d</string>
+    <string name="notif_stop">Stop</string>
+
+    <string name="battery_title">Background restrictions</string>
+    <string name="battery_text">This device may kill the proxy in the background. Allow it to run without battery limits?</string>
+    <string name="battery_open">Open settings</string>
+    <string name="battery_later">Later</string>
+
+    <string name="diag_title">Diagnostics</string>
+    <string name="tile_on">On</string>
+    <string name="tile_off">Off</string>
+    <string name="settings_title">Settings</string>
+    <string name="btn_settings">Settings</string>
+    <string name="btn_restart">Restart proxy</string>
+    <string name="btn_logs">Open logs</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_regen">New</string>
+
+    <string name="section_interface">Interface</string>
+    <string name="section_mtproto">MTProto connection</string>
+    <string name="section_dc">Telegram data centers</string>
+    <string name="section_cfproxy">Cloudflare Proxy</string>
+    <string name="section_cfworker">Cloudflare Worker</string>
+    <string name="section_logs">Logs and performance</string>
+    <string name="section_extra">Advanced</string>
+
+    <string name="lbl_language">Language</string>
+    <string name="lbl_theme">Theme</string>
+    <string name="lbl_host">IP address</string>
+    <string name="lbl_port">Port</string>
+    <string name="lbl_secret">Secret</string>
+    <string name="lbl_dc_hint">One rule per line, format: number:IP</string>
+    <string name="lbl_cf_enable">Enable CF proxy</string>
+    <string name="lbl_cf_custom">Custom domain</string>
+    <string name="lbl_cfworker_domains">Cloudflare Worker domains (comma-separated)</string>
+    <string name="lbl_verbose">Verbose logging</string>
+    <string name="lbl_buf_kb">Buffer, KB (default 256)</string>
+    <string name="lbl_pool_size">WebSocket session pool (default 4)</string>
+    <string name="lbl_log_max_mb">Max log size, MB (default 5)</string>
+    <string name="lbl_force_test_dc">Telegram test data centers</string>
+    <string name="lbl_autostart">Start after device boot</string>
+
+    <string name="tip_host">Address the proxy listens on. Usually 127.0.0.1</string>
+    <string name="tip_port">Proxy port. Telegram must use the same one. Ports below 1024 are unavailable on Android</string>
+    <string name="tip_secret">Secret key for client authorization</string>
+    <string name="tip_dc">Mapping of data center number to IP. If media does not load, try removing 2:149.154.167.220</string>
+    <string name="tip_cfproxy">Use Cloudflare proxy for unreachable data centers</string>
+    <string name="tip_cf_custom">Specify your own domains instead of automatic selection</string>
+    <string name="tip_cfworker">Cloudflare Worker domains, e.g. name.account.workers.dev</string>
+    <string name="tip_verbose">More details in the log — useful for troubleshooting</string>
+    <string name="tip_force_test_dc">Route all traffic to Telegram test environment. Not needed for normal use</string>
+
+    <string name="theme_auto">Auto</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+
+    <string name="err_port">Port must be a number between 1 and 65535</string>
+    <string name="err_port_privileged">Ports below 1024 are unavailable on Android without root</string>
+    <string name="err_secret">Secret must be 32 hexadecimal characters</string>
+    <string name="err_dc">Invalid DC line: %1$s</string>
+    <string name="err_number">Numeric fields are invalid</string>
+    <string name="saved">Settings saved, proxy restarted</string>
+
+    <string name="log_title">Logs</string>
+    <string name="log_empty">Log is empty</string>
+    <string name="log_copy">Copy</string>
+    <string name="log_clear">Clear</string>
+    <string name="log_copied">Log copied</string>
+
+    <string name="restarting">Restarting…</string>
+    <string name="donate">Donate</string>
+    <string name="warn_bad_secret">Telegram is connecting with a different secret. Tap “Open in Telegram” to update the proxy</string>
+    <!-- Signature at the bottom of the main screen. Names are not translated. -->
+    <string name="sig_based">Based on: tg-ws-proxy (by Flowseal)</string>
+    <string name="sig_versions">Versions: %1$s (Windows)</string>
+    <string name="sig_adapted">Adapted for android by Arkomiko</string>
+</resources>
