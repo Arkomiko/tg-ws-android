@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -78,6 +80,18 @@ tasks.matching { it.name.matches(Regex("merge.+PythonSources")) }.configureEach 
     dependsOn(syncPythonCore)
 }
 
+/**
+ * Параметры подписи читаются из android/keystore.properties — файла, которого
+ * нет в git (см. android/.gitignore). Само хранилище ключей лежит вне
+ * репозитория. Если файла нет, релиз собирается неподписанным, и сборка из
+ * чужой копии репозитория не падает.
+ */
+val keystoreProperties = Properties().apply {
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val hasSigning = keystoreProperties.getProperty("storeFile")?.let { file(it).exists() } == true
+
 android {
     namespace = "com.tgwsproxy.android"
     compileSdk = 35
@@ -90,18 +104,46 @@ android {
         versionName = "1.10.0"
 
         ndk {
-            // Этап 1: только ABI подключённого устройства — сборка быстрее, APK меньше.
-            // Для релиза сюда добавится armeabi-v7a.
+            // Только arm64-v8a.
+            //
+            // Chaquopy отдаёт Python 3.13 лишь для arm64-v8a и x86_64
+            // («Python 3.13 is not available for the ABI armeabi-v7a»), а 3.13
+            // нужен ради свежих колёс cryptography. Ради 32-битного ARM
+            // пришлось бы откатывать Python, и ради малого: arm64 — стандарт
+            // с 2015 года, Google Play требует 64 бита с 2019, а minSdk у нас
+            // 24 (Android 7, 2016). x86_64 нужен только эмулятору.
             abiFilters += listOf("arm64-v8a")
+        }
+    }
+
+    signingConfigs {
+        if (hasSigning) {
+            create("release") {
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
         }
     }
 
     buildTypes {
         getByName("debug") {
             isMinifyEnabled = false
+            versionNameSuffix = "-debug"
         }
         getByName("release") {
-            isMinifyEnabled = false
+            // Код и ресурсы ужимаем; proguard-rules.pro держит то, до чего
+            // Chaquopy добирается через отражение.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+            if (hasSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
