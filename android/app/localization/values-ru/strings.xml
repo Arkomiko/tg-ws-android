@@ -111,6 +111,6 @@
     <string name="warn_bad_secret">Telegram подключается с другим секретом. Нажмите «Открыть в Telegram», чтобы обновить прокси</string>
     <!-- Подпись внизу главного экрана. Имена не переводятся. -->
     <string name="sig_based">Based on: tg-ws-proxy (от Flowseal)</string>
-    <string name="sig_versions">Versions: %1$s (Windows)</string>
+    <string name="sig_versions">Ядро: %1$s (Windows)   ·   APK: %2$s</string>
     <string name="sig_adapted">Adapted for android by Arkomiko</string>
 </resources>

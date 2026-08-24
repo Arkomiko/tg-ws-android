@@ -110,6 +110,6 @@
     <string name="warn_bad_secret">Telegram is connecting with a different secret. Tap “Open in Telegram” to update the proxy</string>
     <!-- Signature at the bottom of the main screen. Names are not translated. -->
     <string name="sig_based">Based on: tg-ws-proxy (by Flowseal)</string>
-    <string name="sig_versions">Versions: %1$s (Windows)</string>
+    <string name="sig_versions">Core: %1$s (Windows)   ·   APK: %2$s</string>
     <string name="sig_adapted">Adapted for android by Arkomiko</string>
 </resources>

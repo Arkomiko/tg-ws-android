@@ -155,8 +155,15 @@ class MainActivity : ThemedActivity() {
         val based = findViewById<TextView>(R.id.signature_based)
         val by = findViewById<TextView>(R.id.signature_by)
 
+        // Две разные версии: ядро приходит из оригинала и живёт по своей
+        // нумерации (подставляется сборкой из proxy/__init__.py), APK
+        // нумеруется отдельно — обвязка меняется независимо от протокола.
         val line = getString(R.string.sig_based) + System.lineSeparator() +
-            getString(R.string.sig_versions, BuildConfigCompat.versionName(this))
+            getString(
+                R.string.sig_versions,
+                getString(R.string.core_version),
+                BuildConfigCompat.versionName(this),
+            )
         val first = SpannableString(line)
         // Ссылки в первой строке остаются серыми, как весь блок; что они
         // кликабельны, подсказывает подчёркивание.

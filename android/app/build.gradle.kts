@@ -86,6 +86,19 @@ tasks.matching { it.name.matches(Regex("merge.+PythonSources")) }.configureEach 
  * репозитория. Если файла нет, релиз собирается неподписанным, и сборка из
  * чужой копии репозитория не падает.
  */
+/**
+ * Версия ядра протокола — читается прямо из `proxy/__init__.py`.
+ *
+ * Она отличается от версии приложения: ядро приходит из оригинала
+ * Flowseal/tg-ws-proxy и живёт по своей нумерации, а APK нумеруется отдельно,
+ * потому что Android-обвязка меняется независимо от протокола. Читаем из файла,
+ * а не дублируем строкой, чтобы значения не разъехались при обновлении ядра.
+ */
+val coreVersion: String = Regex("""__version__\s*=\s*["']([^"']+)["']""")
+    .find(repoRoot.resolve("proxy/__init__.py").readText())
+    ?.groupValues?.get(1)
+    ?: error("не удалось прочитать __version__ из proxy/__init__.py")
+
 val keystoreProperties = Properties().apply {
     val f = rootProject.file("keystore.properties")
     if (f.exists()) f.inputStream().use { load(it) }
@@ -100,8 +113,14 @@ android {
         applicationId = "com.tgwsproxy.android"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.10.0"
+        // Версия APK своя, не совпадает с версией ядра. Префикс «A» —
+        // Android, дальше поколение обвязки и порядковый номер сборки.
+        versionCode = 2
+        versionName = "A.1.002"
+
+        // Версия ядра доступна из ресурсов, чтобы её можно было показать
+        // в подписи на главном экране рядом с версией APK.
+        resValue("string", "core_version", coreVersion)
 
         ndk {
             // Только arm64-v8a.
