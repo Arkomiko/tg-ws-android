@@ -32,6 +32,11 @@ import org.json.JSONObject
  */
 class MainActivity : ThemedActivity() {
 
+    private companion object {
+        /** Сколько отказов рукопожатия считать поводом показать подсказку. */
+        const val BAD_HANDSHAKE_HINT_THRESHOLD = 5
+    }
+
     private lateinit var titleView: TextView
     private lateinit var statsLine: TextView
     private lateinit var statsTraffic: TextView
@@ -292,10 +297,18 @@ class MainActivity : ThemedActivity() {
             if (stats.optBoolean("stuck")) append(" · ЗАЛИПАНИЕ")
         }
         // Неудачные рукопожатия почти всегда означают одно: в Telegram
-        // прописан другой секрет (например, после переустановки приложения).
-        // Без подсказки пользователь видит только нули и не понимает причину.
+        // прописан другой секрет — например, после переустановки приложения,
+        // которая стирает конфиг и генерирует новый.
+        //
+        // Порог, а не «ws == 0»: прежнее условие показывало подсказку только
+        // когда не работало вообще ничего. На практике бывает иначе — часть
+        // соединений уходит по старому секрету и отбивается, часть по новому
+        // работает: наблюдалось 290 отказов при 96 живых WS-сессиях, и
+        // подсказка не показывалась, хотя Telegram висел на «Соединение…».
+        // Порт слушается на loopback, посторонних клиентов там не бывает,
+        // поэтому несколько отказов — уже достоверный признак.
         val bad = stats.optInt("bad")
-        statsTraffic.text = if (bad > 0 && stats.optInt("ws") == 0) {
+        statsTraffic.text = if (bad >= BAD_HANDSHAKE_HINT_THRESHOLD) {
             getString(R.string.warn_bad_secret)
         } else {
             extra
