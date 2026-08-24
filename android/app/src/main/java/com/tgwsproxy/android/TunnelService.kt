@@ -68,16 +68,44 @@ class TunnelService : VpnService() {
             return anyVpnActive(context)
         }
 
-        /** Есть ли вообще активный VPN — свой или чужой. */
+        /**
+         * Есть ли вообще активный VPN — свой или чужой.
+         *
+         * Проверок две, и вторая не лишняя. Дефолтная сеть показывает VPN
+         * только если наше приложение попадает в его список uid. ByeDPI умеет
+         * работать по выбранным приложениям: если нас из туннеля исключили, для
+         * нас дефолтной останется обычная сотовая сеть с NET_CAPABILITY_NOT_VPN,
+         * мы решим, что VPN нет, поднимем свой — и вытесним работающий ByeDPI.
+         * Ровно то, чего делать нельзя. Поэтому дополнительно просматриваем все
+         * видимые сети на предмет транспорта VPN.
+         *
+         * Проверено на устройстве: при активном ByeDPI дефолтная сеть была
+         * tun0 с uid-диапазоном, куда наш uid 10337 попадал, — но полагаться
+         * на это во всех настройках нельзя.
+         */
         fun anyVpnActive(context: Context): Boolean {
             return try {
                 val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE)
                     as ConnectivityManager
-                val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
-                !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+
+                val ownCaps = cm.getNetworkCapabilities(cm.activeNetwork)
+                if (ownCaps != null &&
+                    !ownCaps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+                ) {
+                    return true
+                }
+
+                @Suppress("DEPRECATION")
+                cm.allNetworks.any { network ->
+                    cm.getNetworkCapabilities(network)
+                        ?.hasTransport(NetworkCapabilities.TRANSPORT_VPN) == true
+                }
             } catch (t: Throwable) {
+                // Ошибку трактуем как «VPN есть»: не поднять свой туннель —
+                // потерять живучесть, поднять поверх чужого — сломать чужой
+                // обходчик. Первое дешевле.
                 Log.w(TAG, "Не удалось определить состояние VPN", t)
-                false
+                true
             }
         }
 
