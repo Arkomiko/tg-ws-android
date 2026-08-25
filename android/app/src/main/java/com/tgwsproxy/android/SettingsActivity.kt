@@ -356,6 +356,17 @@ class SettingsActivity : ThemedActivity() {
      * не будет: VpnService.prepare вернёт null.
      */
     private fun requestTunnelConsent() {
+        // Сам вызов prepare() отбирает туннель у чужого VPN — это его
+        // задокументированное действие, а не побочный эффект: система делает
+        // «подготовленным» наше приложение вместо прежнего и рвёт его
+        // соединение. Проверено на устройстве: ByeDPI умирал в момент нажатия
+        // галочки, ещё до того, как мы успевали что-то поднять. Поэтому при
+        // работающем чужом VPN согласие не запрашиваем вовсе — настройка
+        // просто сохраняется, а спросим позже, когда чужой туннель уйдёт.
+        if (TunnelService.anyVpnActive(this)) {
+            Toast.makeText(this, R.string.tunnel_consent_later, Toast.LENGTH_LONG).show()
+            return
+        }
         val intent = runCatching { android.net.VpnService.prepare(this) }.getOrNull()
         if (intent == null) return
         runCatching { startActivityForResult(intent, REQ_TUNNEL_CONSENT) }

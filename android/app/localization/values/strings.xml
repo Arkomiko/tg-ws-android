@@ -117,6 +117,7 @@
     <string name="tunnel_pending">Resilience: raising the tunnel…</string>
     <string name="tunnel_wait_foreign">Another VPN is running. The tunnel will be raised, and permission asked, once you turn it off</string>
     <string name="tunnel_consent_denied">The tunnel cannot be raised without system permission</string>
+    <string name="tunnel_consent_later">Another VPN is running. The tunnel is enabled and will be raised on its own once that one is off — the system will ask for permission then</string>
     <string name="sig_based">Based on: tg-ws-proxy (by Flowseal)</string>
     <string name="sig_versions">Core: %1$s (Windows)   ·   APK: %2$s</string>
     <string name="sig_adapted">Adapted for android by Arkomiko</string>
