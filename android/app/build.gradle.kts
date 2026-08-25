@@ -122,15 +122,32 @@ android {
         resValue("string", "core_version", coreVersion)
 
         ndk {
-            // Только arm64-v8a.
+            // 64- и 32-битный ARM.
             //
-            // Chaquopy отдаёт Python 3.13 лишь для arm64-v8a и x86_64
-            // («Python 3.13 is not available for the ABI armeabi-v7a»), а 3.13
-            // нужен ради свежих колёс cryptography. Ради 32-битного ARM
-            // пришлось бы откатывать Python, и ради малого: arm64 — стандарт
-            // с 2015 года, Google Play требует 64 бита с 2019, а minSdk у нас
-            // 24 (Android 7, 2016). x86_64 нужен только эмулятору.
-            abiFilters += listOf("arm64-v8a")
+            // Список ABI определяется не вкусом, а тем, под что существуют
+            // колёса cryptography в репозитории Chaquopy: для cp313 это только
+            // arm64_v8a и x86_64, а для cp311 — все четыре. Поэтому охват
+            // 32-битных устройств и версия Python связаны жёстко, см. блок
+            // chaquopy ниже.
+            //
+            // x86 и x86_64 не включены: они нужны эмулятору, а не живым
+            // телефонам, и стоили бы ещё двух копий интерпретатора в APK.
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
+    }
+
+    // Отдельный APK на каждую архитектуру плюс универсальный.
+    //
+    // С двумя ABI универсальный APK весит около 30 МБ, из которых половина
+    // мертва для любого конкретного телефона: внутри лежат два интерпретатора
+    // Python. Разделение даёт файлы вдвое меньше, а универсальный остаётся для
+    // тех, кто не знает свою архитектуру и не должен её знать.
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a")
+            isUniversalApk = true
         }
     }
 
@@ -189,12 +206,25 @@ android {
 
 chaquopy {
     defaultConfig {
-        // cryptography 42.0.8 в репозитории Chaquopy собрана под cp310–cp313,
-        // поэтому 3.13 — верхняя доступная версия. Chaquopy требует, чтобы на
-        // машине сборки была та же minor-версия Python (для pip); при желании
-        // путь к ней задаётся свойством chaquopy.buildPython.
-        version = "3.13"
-        (findProperty("chaquopy.buildPython") as String?)?.let { buildPython(it) }
+        // Python 3.11, а не более свежий, — сознательный размен ради охвата.
+        //
+        // Колёса cryptography 42.0.8 в репозитории Chaquopy собраны под
+        // cp310–cp313, но не под все ABI: для cp313 доступны только
+        // arm64_v8a и x86_64, а для cp311 — все четыре, включая armeabi_v7a.
+        // Значит 32-битные телефоны достижимы лишь на 3.11. Цена — интерпретатор
+        // на две минорные версии старше; ядро proxy/ на нём работает без правок,
+        // ничего новее оно не требует.
+        //
+        // Chaquopy нужна та же minor-версия Python на машине сборки (для pip).
+        // Путь можно задать свойством chaquopy.buildPython, иначе ищем
+        // стандартные места установки.
+        version = "3.11"
+        val buildPy = (findProperty("chaquopy.buildPython") as String?)
+            ?: listOf(
+                "E:/Python/Python311/python.exe",
+                System.getProperty("user.home") + "/AppData/Local/Programs/Python/Python311/python.exe",
+            ).firstOrNull { file(it).exists() }
+        buildPy?.let { buildPython(it) }
         pip {
             install("cryptography")
             install("certifi")
